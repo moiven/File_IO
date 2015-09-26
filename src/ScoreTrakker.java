@@ -6,6 +6,7 @@ import java.util.Scanner;
 
 public class ScoreTrakker {
 	private ArrayList<Student> students;
+	private static String[] files = {"scoresPt1.txt", "badscore.txt", "nofile.txt"};
 	
 	public ScoreTrakker()
 	{
@@ -17,16 +18,26 @@ public class ScoreTrakker {
 		FileReader reader = new FileReader(filename);
 		Scanner in = new Scanner(reader);
 		
-		while (in.hasNextLine()) {
+		while (in.hasNextLine()) 
+		{
 			Student kid = new Student();
 
 			String inputName = in.nextLine();
 			kid.setName(inputName);
-			String strNum = in.nextLine();
-			int inputScore = Integer.parseInt(strNum);
-			kid.setScore(inputScore);
-
-			students.add(kid);
+			
+			//modified to catch errors in student scores
+			String strNum = null;
+			try
+			{
+				strNum = in.nextLine();
+				int inputScore = Integer.parseInt(strNum);
+				kid.setScore(inputScore);
+				students.add(kid);
+			}
+			catch (NumberFormatException e)
+			{
+				System.out.println("\nIncorrect format for " + inputName + " not a valid score: " + strNum + "\n");
+			}
 		}
 	}
 	
@@ -40,15 +51,25 @@ public class ScoreTrakker {
 		}
 	}
 	
-	public void processFiles(String filename) throws Exception
+	public void processFiles(String[] filename) throws Exception
 	{
-		loadDataFromFile(filename);
-		printInOrder();
+		for(String file : filename)
+		{
+			try
+			{
+				loadDataFromFile(file);
+				printInOrder();
+			}
+			catch (FileNotFoundException e)
+			{
+				System.out.println("\nCan't open file: " + file);
+			}
+		}
 	}
 	
 	public static void main(String[] args) throws Exception 
 	{
-		ScoreTrakker tracker = new ScoreTrakker();
-		tracker.processFiles("scoresPt1.txt");
+			ScoreTrakker tracker = new ScoreTrakker();
+			tracker.processFiles(files);
 	}
 }
